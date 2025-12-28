@@ -28,25 +28,49 @@ const AdminPage = () => {
   ];
 
   const getPageFields = (pageName) => {
-    // Field definitions remain the same as before
-    const homePageFields = [
-      { name: 'heroTitle', label: 'Hero Title', type: 'text' },
-      { name: 'heroSubtitle', label: 'Hero Subtitle', type: 'text' },
-      { name: 'heroVideo', label: 'Hero Video', type: 'file' },
-      { name: 'welcomeTitle', label: 'Welcome Title', type: 'text' },
-      { name: 'welcomeText', label: 'Welcome Text', type: 'textarea' },
-      { name: 'welcomeImage', label: 'Welcome Image', type: 'file' },
-      { name: 'programsTitle', label: 'Programs Title', type: 'text' },
-      { name: 'programsText', label: 'Programs Text', type: 'textarea' },
-      { name: 'programImages', label: 'Program Images', type: 'file', multiple: true },
-      { name: 'facilityTitle', label: 'Facility Title', type: 'text' },
-      { name: 'facilityText', label: 'Facility Text', type: 'textarea' },
-      { name: 'facilityImages', label: 'Facility Images', type: 'file', multiple: true },
-      { name: 'testimonialsTitle', label: 'Testimonials Title', type: 'text' },
-      { name: 'callToActionTitle', label: 'Call to Action Title', type: 'text' },
-      { name: 'callToActionText', label: 'Call to Action Text', type: 'textarea' },
-      { name: 'contactUsTitle', label: 'Contact Us Title', type: 'text' },
-      { name: 'instagramFeedTitle', label: 'Instagram Feed Title', type: 'text' },
+    const homePageSections = [
+        {
+            title: 'Hero Section',
+            fields: [
+                { name: 'heroTitle', label: 'Hero Title', type: 'text' },
+                { name: 'heroSubtitle', label: 'Hero Subtitle', type: 'text' },
+                { name: 'heroVideo', label: 'Hero Video', type: 'file' },
+            ]
+        },
+        {
+            title: 'Welcome Section',
+            fields: [
+                { name: 'welcomeTitle', label: 'Welcome Title', type: 'text' },
+                { name: 'welcomeText', label: 'Welcome Text', type: 'textarea' },
+                { name: 'welcomeImage', label: 'Welcome Image', type: 'file' },
+            ]
+        },
+        {
+            title: 'Programs Section',
+            fields: [
+                { name: 'programsTitle', label: 'Programs Title', type: 'text' },
+                { name: 'programsText', label: 'Programs Text', type: 'textarea' },
+                { name: 'programImages', label: 'Program Images', type: 'file', multiple: true },
+            ]
+        },
+        {
+            title: 'Facility Section',
+            fields: [
+                { name: 'facilityTitle', label: 'Facility Title', type: 'text' },
+                { name: 'facilityText', label: 'Facility Text', type: 'textarea' },
+                { name: 'facilityImages', label: 'Facility Images', type: 'file', multiple: true },
+            ]
+        },
+        {
+            title: 'Other Sections',
+            fields: [
+                { name: 'testimonialsTitle', label: 'Testimonials Title', type: 'text' },
+                { name: 'callToActionTitle', label: 'Call to Action Title', type: 'text' },
+                { name: 'callToActionText', label: 'Call to Action Text', type: 'textarea' },
+                { name: 'contactUsTitle', label: 'Contact Us Title', type: 'text' },
+                { name: 'instagramFeedTitle', label: 'Instagram Feed Title', type: 'text' },
+            ]
+        }
     ];
 
     const programPageFields = [
@@ -72,27 +96,27 @@ const AdminPage = () => {
     ];
 
     switch (pageName) {
-      case 'home': return { fields: homePageFields, title: 'Home Page' };
-      case 'kids-program': return { fields: programPageFields, title: 'Kids Program' };
-      case 'homeschool-program': return { fields: programPageFields, title: 'Homeschool Program' };
-      case 'adult-program': return { fields: programPageFields, title: 'Adult Program' };
-      case 'fundamentals-program': return { fields: programPageFields, title: 'Fundamentals Program' };
-      case 'competition-training': return { fields: programPageFields, title: 'Competition Training' };
-      case 'wrestling-program': return { fields: programPageFields, title: 'Wrestling Program' };
-      case 'private-lessons': return { fields: simplePageFields, title: 'Private Lessons' };
-      case 'schedule': return { fields: simplePageFields, title: 'Schedule' };
-      case 'training-schedule': return { fields: simplePageFields, title: 'Training Schedule' };
-      case 'instructors': return { fields: instructorFields, title: 'Instructors' };
-      case 'our-facility': return { fields: simplePageFields, title: 'Our Facility' };
-      case 'affiliate-schools': return { fields: simplePageFields, title: 'Affiliate Schools' };
-      case 'contact-page': return { fields: simplePageFields, title: 'Contact Page' };
-      case 'about': return { fields: simplePageFields, title: 'About' };
-      case 'blog': return { fields: blogFields, title: 'Blog' };
-      default: return { fields: [], title: 'Select a page to edit' };
+      case 'home': return { sections: homePageSections, title: 'Home Page' };
+      case 'kids-program': return { sections: [{ title: 'Kids Program', fields: programPageFields }], title: 'Kids Program' };
+      case 'homeschool-program': return { sections: [{ title: 'Homeschool Program', fields: programPageFields }], title: 'Homeschool Program' };
+      case 'adult-program': return { sections: [{ title: 'Adult Program', fields: programPageFields }], title: 'Adult Program' };
+      case 'fundamentals-program': return { sections: [{ title: 'Fundamentals Program', fields: programPageFields }], title: 'Fundamentals Program' };
+      case 'competition-training': return { sections: [{ title: 'Competition Training', fields: programPageFields }], title: 'Competition Training' };
+      case 'wrestling-program': return { sections: [{ title: 'Wrestling Program', fields: programPageFields }], title: 'Wrestling Program' };
+      case 'private-lessons': return { sections: [{ title: 'Private Lessons', fields: simplePageFields }], title: 'Private Lessons' };
+      case 'schedule': return { sections: [{ title: 'Schedule', fields: simplePageFields }], title: 'Schedule' };
+      case 'training-schedule': return { sections: [{ title: 'Training Schedule', fields: simplePageFields }], title: 'Training Schedule' };
+      case 'instructors': return { sections: [{ title: 'Instructors', fields: instructorFields }], title: 'Instructors' };
+      case 'our-facility': return { sections: [{ title: 'Our Facility', fields: simplePageFields }], title: 'Our Facility' };
+      case 'affiliate-schools': return { sections: [{ title: 'Affiliate Schools', fields: simplePageFields }], title: 'Affiliate Schools' };
+      case 'contact-page': return { sections: [{ title: 'Contact Page', fields: simplePageFields }], title: 'Contact Page' };
+      case 'about': return { sections: [{ title: 'About', fields: simplePageFields }], title: 'About' };
+      case 'blog': return { sections: [{ title: 'Blog', fields: blogFields }], title: 'Blog' };
+      default: return { sections: [], title: 'Select a page to edit' };
     }
   };
 
-  const { fields, title } = getPageFields(page);
+  const { sections, title } = getPageFields(page);
 
   return (
     <div className="admin-container">
@@ -109,10 +133,13 @@ const AdminPage = () => {
         </ul>
       </div>
       <div className="admin-content">
-        {fields.length > 0 ? (
-          <EditableSection pageName={page} sectionTitle={title} fields={fields} />
+        <h1>Editing: {title}</h1>
+        {sections && sections.length > 0 ? (
+          sections.map(section => (
+            <EditableSection key={section.title} pageName={page} sectionTitle={section.title} fields={section.fields} />
+          ))
         ) : (
-          <h1>{title}</h1>
+          <p>No sections available for this page.</p>
         )}
       </div>
     </div>

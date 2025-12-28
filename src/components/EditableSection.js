@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 
 const EditableSection = ({ pageName, sectionTitle, fields }) => {
@@ -23,10 +23,10 @@ const EditableSection = ({ pageName, sectionTitle, fields }) => {
     fetchContent();
   }, [pageName]);
 
-  const handleTextChange = (e) => {
+  const handleTextChange = useCallback((e) => {
     const { name, value } = e.target;
     setContent(prev => ({ ...prev, [name]: value }));
-  };
+  }, []);
 
   const handleFileChange = (e) => {
     const { name, files: selectedFiles } = e.target;
@@ -99,7 +99,67 @@ const EditableSection = ({ pageName, sectionTitle, fields }) => {
   };
 
   const renderField = (field) => {
-    // ... (renderField logic remains the same)
+    switch (field.type) {
+      case 'text':
+        return (
+          <input
+            type="text"
+            name={field.name}
+            value={content[field.name] || ''}
+            onChange={handleTextChange}
+            style={{ width: '100%' }}
+          />
+        );
+      case 'textarea':
+        return (
+          <textarea
+            name={field.name}
+            value={content[field.name] || ''}
+            onChange={handleTextChange}
+            style={{ width: '100%', minHeight: '100px' }}
+          />
+        );
+      case 'file':
+        return (
+          <div>
+            <input
+              type="file"
+              name={field.name}
+              multiple={field.multiple}
+              onChange={handleFileChange}
+              style={{ marginBottom: '10px' }}
+            />
+            <div>
+              <input
+                type="text"
+                placeholder="Or add image URL"
+                value={urlInputs[field.name] || ''}
+                onChange={(e) => handleUrlInputChange(field.name, e.target.value)}
+                style={{ width: 'calc(100% - 120px)', marginRight: '10px' }}
+              />
+              <button type="button" onClick={() => handleAddUrl(field.name)}>Add from URL</button>
+            </div>
+          </div>
+        );
+      case 'custom':
+        const CustomComponent = field.component;
+        const componentProps = {};
+        if (field.name === 'instructors' || field.name === 'posts') {
+            try {
+                componentProps[field.name] = JSON.parse(content[field.name] || '[]');
+            } catch {
+                componentProps[field.name] = [];
+            }
+        }
+        return (
+          <CustomComponent
+            {...componentProps}
+            onChange={handleTextChange}
+          />
+        );
+      default:
+        return <p>Unsupported field type</p>;
+    }
   };
 
   return (

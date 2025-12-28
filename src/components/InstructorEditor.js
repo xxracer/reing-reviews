@@ -5,7 +5,7 @@ const InstructorEditor = ({ instructors, onChange }) => {
 
   useEffect(() => {
     onChange({ target: { name: 'instructors', value: JSON.stringify(localInstructors) } });
-  }, [localInstructors]);
+  }, [localInstructors, onChange]);
 
   const handleInstructorChange = (index, field, value) => {
     const updatedInstructors = [...localInstructors];

@@ -1,12 +1,20 @@
 .admin-container {
   display: flex;
+  font-family: Arial, sans-serif;
 }
 
 .admin-sidebar {
-  width: 200px;
-  background-color: #f4f4f4;
-  padding: 15px;
+  width: 220px;
+  background-color: #f8f9fa;
+  padding: 20px;
   height: 100vh;
+  border-right: 1px solid #dee2e6;
+}
+
+.admin-sidebar h3 {
+  font-size: 1.2em;
+  color: #343a40;
+  margin-bottom: 20px;
 }
 
 .admin-sidebar ul {
@@ -16,19 +24,50 @@
 
 .admin-sidebar ul li a {
   display: block;
-  padding: 10px;
-  color: #333;
+  padding: 12px 15px;
+  color: #495057;
   text-decoration: none;
   border-radius: 5px;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  transition: background-color 0.2s;
 }
 
 .admin-sidebar ul li a:hover,
 .admin-sidebar ul li a.active {
-  background-color: #ddd;
+  background-color: #e9ecef;
+  color: #007bff;
+  font-weight: bold;
 }
 
 .admin-content {
   flex-grow: 1;
-  padding: 20px;
+  padding: 30px;
+  background-color: #fff;
+}
+
+.admin-content h1 {
+    font-size: 2em;
+    color: #343a40;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+/* Styles for EditableSection component to make it appear as a card */
+[data-testid="editable-section"] {
+  background-color: #fdfdfd;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+[data-testid="editable-section"] h2 {
+  font-size: 1.5em;
+  color: #007bff;
+  margin-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
 }

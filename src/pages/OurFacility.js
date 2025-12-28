@@ -62,7 +62,7 @@ const OurFacilityPage = () => {
           <img
             key={index}
             src={image.url}
-            alt={`Facility image ${index + 1}`}
+            alt={`Facility ${index + 1}`}
             style={{ width: '100%', maxWidth: '440px', height: 'auto', borderRadius: '8px' }}
           />
         ))}
