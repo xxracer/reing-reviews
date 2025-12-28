@@ -5,9 +5,20 @@ const fs = require('fs');
 const path = require('path');
 const twilio = require('twilio');
 const axios = require('axios');
+const { Pool } = require('pg');
+const { put } = require('@vercel/blob');
+const multer = require('multer');
 require('dotenv').config();
 
 const app = express();
+const upload = multer({ dest: '/tmp' });
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 // --- Vercel Deployment Fix ---
 const IS_VERCEL = process.env.VERCEL === '1';
@@ -155,6 +166,97 @@ app.get('/api/google-reviews', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to fetch reviews.' });
   }
 });
+
+// CMS API
+app.get('/api/content/:page_name', async (req, res) => {
+  const { page_name } = req.params;
+  try {
+    const result = await pool.query('SELECT content FROM page_content WHERE page_name = $1', [page_name]);
+    if (result.rows.length > 0) {
+      res.json(result.rows[0].content);
+    } else {
+      // return empty object if no content
+      res.json({});
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/content/:page_name', upload.any(), async (req, res) => {
+  const { page_name } = req.params;
+  const textFields = req.body;
+
+  try {
+    const client = await pool.connect();
+    const existingContentResult = await client.query('SELECT content FROM page_content WHERE page_name = $1', [page_name]);
+    let content = existingContentResult.rows.length > 0 ? existingContentResult.rows[0].content || {} : {};
+
+    // Process text fields
+    for (const key in textFields) {
+      try {
+        content[key] = JSON.parse(textFields[key]);
+      } catch (e) {
+        content[key] = textFields[key];
+      }
+    }
+
+    // Process uploaded files
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const fileStream = fs.createReadStream(file.path);
+        const { url } = await put(file.originalname, fileStream, {
+          access: 'public',
+        });
+        fs.unlinkSync(file.path); // Clean up the temporary file
+
+        if (!content[file.fieldname]) {
+          content[file.fieldname] = [];
+        }
+        content[file.fieldname].push({
+          url,
+          originalname: file.originalname,
+          mimetype: file.mimetype,
+        });
+      }
+    }
+
+    const query = `
+      INSERT INTO page_content (page_name, content)
+      VALUES ($1, $2)
+      ON CONFLICT (page_name)
+      DO UPDATE SET content = $2
+      RETURNING *;
+    `;
+    const result = await client.query(query, [page_name, content]);
+    client.release();
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error in POST /api/content/:page_name', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+const initializeDb = async () => {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS page_content (
+        id SERIAL PRIMARY KEY,
+        page_name VARCHAR(255) UNIQUE NOT NULL,
+        content JSONB
+      );
+    `);
+    console.log('Table "page_content" is ready.');
+  } catch (error) {
+    console.error('Error initializing database:', error);
+  } finally {
+    client.release();
+  }
+};
+
+initializeDb();
 
 // Export the app for Vercel's serverless environment
 module.exports = app;

@@ -1,17 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import FAQ from '../components/FAQ';
 import './Instructors.css'; // Import the new CSS file
 
-const API_URL = '/api/instructors';
-
 const Instructors = () => {
-  const [instructors, setInstructors] = useState([]);
+  const [content, setContent] = useState({
+    title: 'Meet Our World-Class Instructors',
+    instructors: [],
+  });
 
   useEffect(() => {
-    fetch(API_URL)
-      .then(res => res.json())
-      .then(data => setInstructors(data))
-      .catch(err => console.error("Error fetching instructors:", err));
+    const fetchContent = async () => {
+      try {
+        const response = await axios.get('/api/content/instructors');
+        if (response.data && Object.keys(response.data).length > 0) {
+          setContent(prevContent => ({ ...prevContent, ...response.data }));
+        }
+      } catch (error) {
+        console.error('Error fetching instructors content:', error);
+      }
+    };
+    fetchContent();
   }, []);
 
   const pageFaqs = [
@@ -43,9 +52,9 @@ const Instructors = () => {
       <script type="application/ld+json">
         {JSON.stringify(faqSchema)}
       </script>
-      <h1>Meet Our World-Class Instructors</h1>
+      <h1>{content.title}</h1>
 
-      {instructors.map((instructor, index) => (
+      {content.instructors.map((instructor, index) => (
         <div key={instructor.id} className={`instructor-item ${index % 2 !== 0 ? 'reverse' : ''}`}>
           <div className="instructor-image-wrapper">
             <img
