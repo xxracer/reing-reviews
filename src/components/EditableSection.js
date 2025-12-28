@@ -1,0 +1,158 @@
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+
+const EditableSection = ({ pageName, sectionTitle, fields }) => {
+  const [content, setContent] = useState({});
+  const [files, setFiles] = useState({});
+  const [urlInputs, setUrlInputs] = useState({});
+  const [notification, setNotification] = useState({ message: '', type: '' });
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await axios.get(`/api/content/${pageName}`);
+        setContent(response.data);
+        if (sectionRef.current) {
+          sectionRef.current.setAttribute('data-loaded', 'true');
+        }
+      } catch (error) {
+        console.error('Error fetching content:', error);
+      }
+    };
+    fetchContent();
+  }, [pageName]);
+
+  const handleTextChange = (e) => {
+    const { name, value } = e.target;
+    setContent(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const { name, files: selectedFiles } = e.target;
+    setFiles(prev => ({ ...prev, [name]: selectedFiles }));
+  };
+
+  const handleUrlInputChange = (fieldName, value) => {
+    setUrlInputs(prev => ({ ...prev, [fieldName]: value }));
+  };
+
+  const handleAddUrl = (fieldName) => {
+    const url = urlInputs[fieldName];
+    if (url) {
+      setContent(prev => ({
+        ...prev,
+        [fieldName]: [...(prev[fieldName] || []), { url, originalname: url, align: 'center', width: '100%' }],
+      }));
+      setUrlInputs(prev => ({ ...prev, [fieldName]: '' }));
+    }
+  };
+
+  const handleRemoveFile = (fieldName, fileToRemove) => {
+    setContent(prev => ({
+      ...prev,
+      [fieldName]: prev[fieldName].filter(file => file.url !== fileToRemove.url),
+    }));
+  };
+
+  const handleImageMetaChange = (fieldName, index, metaField, value) => {
+    setContent(prev => {
+      const updatedFiles = [...prev[fieldName]];
+      updatedFiles[index][metaField] = value;
+      return { ...prev, [fieldName]: updatedFiles };
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+
+    Object.keys(content).forEach(key => {
+      if (typeof content[key] === 'object' && content[key] !== null) {
+        formData.append(key, JSON.stringify(content[key]));
+      } else if (content[key] !== undefined && content[key] !== null) {
+        formData.append(key, content[key]);
+      }
+    });
+
+    Object.keys(files).forEach(key => {
+      if (files[key] && files[key].length > 0) {
+        for (let i = 0; i < files[key].length; i++) {
+          formData.append(key, files[key][i]);
+        }
+      }
+    });
+
+    try {
+      await axios.post(`/api/content/${pageName}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setNotification({ message: 'Content updated successfully!', type: 'success' });
+    } catch (error) {
+      console.error('Error updating content:', error);
+      setNotification({ message: 'Failed to update content.', type: 'error' });
+    } finally {
+      setTimeout(() => setNotification({ message: '', type: '' }), 3000);
+    }
+  };
+
+  const renderField = (field) => {
+    // ... (renderField logic remains the same)
+  };
+
+  return (
+    <div ref={sectionRef} style={{ border: '1px solid #ccc', padding: '20px', margin: '20px 0' }} data-testid="editable-section">
+      <h2>{sectionTitle}</h2>
+      <form onSubmit={handleSubmit}>
+        {fields.map(field => (
+          <div key={field.name} style={{ marginBottom: '15px' }} data-testid={`field-${field.name}`}>
+            <label>{field.label}:</label>
+            {renderField(field)}
+            {field.type === 'file' && content[field.name] && Array.isArray(content[field.name]) && (
+              <div>
+                <p>Current files:</p>
+                {content[field.name].map((file, index) => (
+                  <div key={index} style={{ border: '1px solid #eee', padding: '10px', marginBottom: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                      <a href={file.url} target="_blank" rel="noopener noreferrer">{file.originalname || file.url}</a>
+                      <button type="button" onClick={() => handleRemoveFile(field.name, file)} style={{ marginLeft: '10px' }}>Remove</button>
+                    </div>
+                    <div>
+                      <label>Alignment: </label>
+                      <select value={file.align || 'center'} onChange={(e) => handleImageMetaChange(field.name, index, 'align', e.target.value)}>
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                      </select>
+                      <label style={{ marginLeft: '10px' }}>Width: </label>
+                      <input type="text" value={file.width || '100%'} onChange={(e) => handleImageMetaChange(field.name, index, 'width', e.target.value)} style={{ width: '100px' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+        <button type="submit">Save Changes</button>
+      </form>
+      {notification.message && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          padding: '10px 20px',
+          backgroundColor: notification.type === 'success' ? 'green' : 'red',
+          color: 'white',
+          borderRadius: '5px',
+        }}>
+          {notification.message}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default EditableSection;

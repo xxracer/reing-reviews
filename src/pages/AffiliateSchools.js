@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import FAQ from '../components/FAQ';
 
 const AffiliateSchools = () => {
+  const [content, setContent] = useState({
+    title: 'Affiliate Schools',
+    mainText: '<p>Reign Jiu Jitsu is proud to be connected with affiliate schools and partners across Texas and beyond. Our network provides students with access to top-level training, seminars, and events, including Pablo Silva Jiu Jitsu HQ.</p>',
+    mainImage: [{ url: "https://placehold.co/900x600?text=Logo+Collage+of+Affiliates" }],
+  });
+
   const pageFaqs = [
     {
       question: "What is the benefit of being part of an affiliate network?",
@@ -22,17 +29,31 @@ const AffiliateSchools = () => {
     }))
   };
 
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await axios.get('/api/content/affiliate-schools');
+        if (response.data && Object.keys(response.data).length > 0) {
+          setContent(prevContent => ({ ...prevContent, ...response.data }));
+        }
+      } catch (error) {
+        console.error('Error fetching affiliate schools content:', error);
+      }
+    };
+    fetchContent();
+  }, []);
+
+  const imageUrl = content.mainImage && content.mainImage[0] ? content.mainImage[0].url : '';
+
   return (
     <div style={{ paddingTop: '120px', paddingBottom: '60px', textAlign: 'center', maxWidth: '900px', margin: '0 auto' }}>
       <script type="application/ld+json">
         {JSON.stringify(faqSchema)}
       </script>
-      <h1 style={{ marginBottom: '20px' }}>Affiliate Schools</h1>
-      <p style={{ marginBottom: '40px', fontSize: '18px', lineHeight: '1.7' }}>
-        Reign Jiu Jitsu is proud to be connected with affiliate schools and partners across Texas and beyond. Our network provides students with access to top-level training, seminars, and events, including Pablo Silva Jiu Jitsu HQ.
-      </p>
+      <h1 style={{ marginBottom: '20px' }}>{content.title}</h1>
+      <div style={{ marginBottom: '40px', fontSize: '18px', lineHeight: '1.7' }} dangerouslySetInnerHTML={{ __html: content.mainText }} />
       <img
-        src="https://placehold.co/900x600?text=Logo+Collage+of+Affiliates"
+        src={imageUrl}
         alt="Logo collage of affiliates / partner schools"
         style={{ width: '100%', height: 'auto', borderRadius: '8px', marginBottom: '60px' }}
       />

@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import FAQ from '../components/FAQ';
 import ContactUs from '../components/ContactUs';
 
 const ContactPage = () => {
+  const [content, setContent] = useState({
+    title: 'Contact Us',
+    mainText: '<p>Ready to start your journey? Contact Reign Jiu Jitsu in Katy, TX today. Schedule your free trial class or ask about our self-defense classes in Katy TX, kids martial arts, and private Jiu Jitsu lessons near me.</p>',
+  });
+
   const pageFaqs = [
     {
       question: "How do I schedule a free trial class?",
@@ -31,16 +37,28 @@ const ContactPage = () => {
     }))
   };
 
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await axios.get('/api/content/contact-page');
+        if (response.data && Object.keys(response.data).length > 0) {
+          setContent(prevContent => ({ ...prevContent, ...response.data }));
+        }
+      } catch (error) {
+        console.error('Error fetching contact page content:', error);
+      }
+    };
+    fetchContent();
+  }, []);
+
   return (
     <div style={{ paddingTop: '80px' }}>
       <script type="application/ld+json">
         {JSON.stringify(faqSchema)}
       </script>
       <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-        <h1>Contact Us</h1>
-        <p style={{ fontSize: '18px', lineHeight: '1.7', maxWidth: '800px', margin: '20px auto 40px auto' }}>
-          Ready to start your journey? Contact Reign Jiu Jitsu in Katy, TX today. Schedule your free trial class or ask about our self-defense classes in Katy TX, kids martial arts, and private Jiu Jitsu lessons near me.
-        </p>
+        <h1>{content.title}</h1>
+        <div style={{ fontSize: '18px', lineHeight: '1.7', maxWidth: '800px', margin: '20px auto 40px auto' }} dangerouslySetInnerHTML={{ __html: content.mainText }} />
       </div>
       <ContactUs />
       <div style={{ maxWidth: '900px', margin: '60px auto' }}>

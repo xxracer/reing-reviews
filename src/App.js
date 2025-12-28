@@ -5,6 +5,7 @@ import './App.css';
 // Import core layout components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import AdminLayout from './components/AdminLayout';
 
 // Import page components
 import HomePage from './pages/HomePage';
@@ -24,6 +25,7 @@ import ContactPage from './pages/ContactPage';
 import AboutPage from './pages/AboutPage';
 import BlogPage from './pages/BlogPage';
 import UpdateInstructors from './pages/UpdateInstructors';
+import AdminPage from './pages/AdminPage';
 
 import GoogleReviewsButton from './components/GoogleReviewsButton';
 
@@ -51,6 +53,9 @@ const AppLayout = () => {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/update-instructors" element={<UpdateInstructors />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path=":page" element={<AdminPage />} />
+          </Route>
         </Routes>
       </main>
       <Footer />
