@@ -1,0 +1,75 @@
+/* src/pages/Instructors.css */
+.instructors-page {
+  padding-top: 120px;
+  padding-bottom: 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.instructors-page h1 {
+  text-align: center;
+  margin-bottom: 40px;
+  font-family: var(--font-heading-primary);
+}
+
+.instructor-item {
+  display: flex;
+  gap: 30px;
+  align-items: stretch;
+  margin-bottom: 50px;
+}
+
+.instructor-item.reverse {
+  flex-direction: row-reverse;
+}
+
+.instructor-image-wrapper {
+  width: 100%;
+  max-width: 300px;
+  flex-shrink: 0;
+}
+
+.instructor-image-wrapper img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.instructor-bio {
+  flex: 1;
+  min-width: 300px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.instructor-bio h2 {
+  margin-top: 0;
+  font-family: var(--font-heading-secondary);
+  font-size: 2.5rem;
+}
+
+.instructor-bio p {
+  line-height: 1.7;
+  text-align: justify;
+  margin-bottom: 1rem;
+}
+
+.instructor-bio-heading {
+  font-weight: bold;
+}
+
+.instructor-bio-bullet {
+  margin-left: 20px;
+  text-indent: -20px;
+}
+
+@media (max-width: 768px) {
+  .instructor-item,
+  .instructor-item.reverse {
+    flex-direction: column;
+    text-align: center;
+  }
+}

@@ -1,0 +1,153 @@
+/* src/pages/UpdateInstructors.css */
+.admin-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  padding-top: 120px; /* Account for fixed navbar */
+  font-family: var(--font-body);
+}
+
+.admin-container h1, .admin-container h2 {
+  font-family: var(--font-heading-primary);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.admin-form-card {
+  background-color: #f9f9f9;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  margin-bottom: 40px;
+}
+
+.admin-form-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.admin-form-card input,
+.admin-form-card textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--border-light-gray);
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.form-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.form-buttons button[type="submit"] {
+  background-color: var(--text-charcoal);
+  color: white;
+}
+
+.form-buttons .cancel-btn {
+  background-color: #ccc;
+  color: #333;
+}
+
+.instructors-list-container {
+  margin-top: 40px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.instructors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.instructor-list-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: background-color 0.2s ease;
+}
+
+.instructor-list-item:hover {
+  background-color: #fdfdfd;
+}
+
+.instructor-list-image {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.instructor-list-name {
+  font-weight: 600;
+  color: #333;
+  flex-grow: 1; /* Pushes actions to the end */
+}
+
+.instructor-list-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.instructor-list-actions button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  cursor: pointer;
+  background-color: #f8f8f8;
+  font-size: 13px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.instructor-list-actions button:hover {
+  background-color: #e9e9e9;
+}
+
+.instructor-list-actions .delete-btn {
+  background-color: #fff1f1;
+  color: #c53030;
+  border-color: #f7d4d4;
+}
+
+.instructor-list-actions .delete-btn:hover {
+  background-color: #fed7d7;
+  color: #9b2c2c;
+}
+
+@media (max-width: 768px) {
+  .admin-container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  .instructor-list-item {
+    flex-wrap: wrap;
+    padding: 15px;
+  }
+  .instructor-list-name {
+    width: 100%;
+    margin-top: 10px;
+    text-align: center;
+  }
+  .instructor-list-actions {
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+}
