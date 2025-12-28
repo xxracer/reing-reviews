@@ -66,7 +66,7 @@ const AboutPage = () => {
           <img
             key={index}
             src={image.url}
-            alt={`About page image ${index + 1}`}
+            alt={`About page ${index + 1}`}
             style={{ width: '100%', maxWidth: '440px', height: 'auto', borderRadius: '8px' }}
           />
         ))}

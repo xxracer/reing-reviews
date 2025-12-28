@@ -5,7 +5,7 @@ const BlogEditor = ({ posts, onChange }) => {
 
   useEffect(() => {
     onChange({ target: { name: 'posts', value: JSON.stringify(localPosts) } });
-  }, [localPosts]);
+  }, [localPosts, onChange]);
 
   const handlePostChange = (index, field, value) => {
     const updatedPosts = [...localPosts];
