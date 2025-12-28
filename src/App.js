@@ -1,11 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 
 // Import core layout components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import AdminLayout from './components/AdminLayout';
 
 // Import page components
 import HomePage from './pages/HomePage';
@@ -29,45 +28,63 @@ import AdminPage from './pages/AdminPage';
 
 import GoogleReviewsButton from './components/GoogleReviewsButton';
 
-// This new component handles the layout
-const AppLayout = () => {
-  return (
-    <div className="App">
-      <Navbar />
-      <main>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/kids-program" element={<KidsProgram />} />
-          <Route path="/homeschool-program" element={<HomeschoolProgram />} />
-          <Route path="/adult-program" element={<AdultProgram />} />
-          <Route path="/fundamentals-program" element={<FundamentalsProgram />} />
-          <Route path="/competition-training" element={<CompetitionTraining />} />
-          <Route path="/wrestling-program" element={<WrestlingProgram />} />
-          <Route path="/private-lessons" element={<PrivateLessons />} />
-          <Route path="/schedule" element={<Schedule />} />
-          <Route path="/training-schedule" element={<TrainingSchedule />} />
-          <Route path="/instructors" element={<Instructors />} />
-          <Route path="/facility" element={<OurFacility />} />
-          <Route path="/affiliate-schools" element={<AffiliateSchools />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/update-instructors" element={<UpdateInstructors />} />
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route path=":page" element={<AdminPage />} />
-          </Route>
-        </Routes>
-      </main>
-      <Footer />
-      <GoogleReviewsButton />
-    </div>
-  );
-};
+const DefaultLayout = ({ children }) => (
+  <div className="App">
+    <Navbar />
+    <main>{children}</main>
+    <Footer />
+    <GoogleReviewsButton />
+  </div>
+);
+
+const AdminLayout = ({ children }) => (
+  <div className="App">
+    <main>{children}</main>
+  </div>
+);
 
 function App() {
   return (
     <Router>
-      <AppLayout />
+      <Routes>
+        <Route
+          path="/admin/*"
+          element={
+            <AdminLayout>
+              <Routes>
+                <Route path="/" element={<Navigate to="/admin/home" />} />
+                <Route path=":page" element={<AdminPage />} />
+              </Routes>
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/*"
+          element={
+            <DefaultLayout>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/kids-program" element={<KidsProgram />} />
+                <Route path="/homeschool-program" element={<HomeschoolProgram />} />
+                <Route path="/adult-program" element={<AdultProgram />} />
+                <Route path="/fundamentals-program" element={<FundamentalsProgram />} />
+                <Route path="/competition-training" element={<CompetitionTraining />} />
+                <Route path="/wrestling-program" element={<WrestlingProgram />} />
+                <Route path="/private-lessons" element={<PrivateLessons />} />
+                <Route path="/schedule" element={<Schedule />} />
+                <Route path="/training-schedule" element={<TrainingSchedule />} />
+                <Route path="/instructors" element={<Instructors />} />
+                <Route path="/facility" element={<OurFacility />} />
+                <Route path="/affiliate-schools" element={<AffiliateSchools />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/update-instructors" element={<UpdateInstructors />} />
+              </Routes>
+            </DefaultLayout>
+          }
+        />
+      </Routes>
     </Router>
   );
 }
