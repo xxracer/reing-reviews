@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ProgramPage.css';
 import FAQ from '../components/FAQ';
+import { sanitizeAndSetInnerHTML } from '../utils/sanitize';
 
 const WrestlingProgram = () => {
   const [content, setContent] = useState({
@@ -75,10 +76,10 @@ const WrestlingProgram = () => {
         <h1 className="program-hero-title">{content.title}</h1>
       </section>
 
-      <section className="program-intro" dangerouslySetInnerHTML={{ __html: content.mainText }} />
+      <section className="program-intro" dangerouslySetInnerHTML={sanitizeAndSetInnerHTML(content.mainText)} />
 
       <section className="program-details-section">
-        <div className="program-details-text" dangerouslySetInnerHTML={{ __html: benefit.text }} />
+        <div className="program-details-text" dangerouslySetInnerHTML={sanitizeAndSetInnerHTML(benefit.text)} />
         <div className="program-details-image">
           <img
             src={benefit.image.url}
@@ -87,7 +88,7 @@ const WrestlingProgram = () => {
         </div>
       </section>
 
-      <section className="program-intro" style={{ maxWidth: '1000px' }} dangerouslySetInnerHTML={{ __html: content.additionalInfo }} />
+      <section className="program-intro" style={{ maxWidth: '1000px' }} dangerouslySetInnerHTML={sanitizeAndSetInnerHTML(content.additionalInfo)} />
 
       <div style={{ textAlign: 'center', margin: '0 auto 60px auto', maxWidth: '900px', padding: '0 20px' }}>
         <img

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ProgramPage.css';
 import FAQ from '../components/FAQ';
+import { sanitizeAndSetInnerHTML } from '../utils/sanitize';
 
 const KidsProgram = () => {
   const [content, setContent] = useState({
@@ -69,12 +70,12 @@ const KidsProgram = () => {
         <h1 className="program-hero-title">{content.title}</h1>
       </section>
 
-      <section className="program-intro" dangerouslySetInnerHTML={{ __html: content.mainText }} />
+      <section className="program-intro" dangerouslySetInnerHTML={sanitizeAndSetInnerHTML(content.mainText)} />
 
       <section className="program-details-section">
         <div className="program-details-text">
           <h2>{benefit.title}</h2>
-          <div dangerouslySetInnerHTML={{ __html: benefit.text }} />
+          <div dangerouslySetInnerHTML={sanitizeAndSetInnerHTML(benefit.text)} />
         </div>
         <div className="program-details-image">
           <img src={benefit.image.url} alt="Instructor teaching young kids" />
