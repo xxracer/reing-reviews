@@ -247,21 +247,21 @@ app.post('/api/content/:page_name', upload.any(), async (req, res) => {
 
 // --- Vercel Blob Upload API ---
 app.post('/api/upload', upload.single('file'), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded.' });
-  }
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded.' });
+    }
 
-  try {
-    const fileStream = fs.createReadStream(req.file.path);
-    const { url } = await put(req.file.originalname, fileStream, {
-      access: 'public',
-    });
-    fs.unlinkSync(req.file.path); // Clean up the temporary file
-    res.status(200).json({ url });
-  } catch (error) {
-    console.error('Error uploading to Vercel Blob:', error);
-    res.status(500).json({ error: 'Failed to upload file.' });
-  }
+    try {
+        const fileBuffer = fs.readFileSync(req.file.path);
+        const { url } = await put(req.file.originalname, fileBuffer, {
+            access: 'public',
+        });
+        fs.unlinkSync(req.file.path);
+        res.status(200).json({ url });
+    } catch (error) {
+        console.error('Error uploading to Vercel Blob:', error);
+        res.status(500).json({ error: 'Failed to upload file.' });
+    }
 });
 
 
