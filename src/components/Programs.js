@@ -11,16 +11,13 @@ const Programs = () => {
       try {
         const response = await axios.get('/api/content/home');
         const content = response.data;
-        if (content.programs) {
-          try {
-            const parsedPrograms = typeof content.programs === 'string'
-              ? JSON.parse(content.programs)
-              : content.programs;
-            setPrograms(Array.isArray(parsedPrograms) ? parsedPrograms : []);
-          } catch (error) {
-            console.error('Error parsing programs data:', error);
-            setPrograms([]);
+        if (content.programs && Array.isArray(content.programs)) {
+          setPrograms(content.programs);
+        } else {
+          if (content.programs) {
+            console.warn('Warning: content.programs is not an array:', content.programs);
           }
+          setPrograms([]);
         }
       } catch (error) {
         console.error('Error fetching homepage content:', error);
