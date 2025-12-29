@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { sanitizeAndSetInnerHTML } from '../utils/sanitize';
 import './WelcomeSection.css';
 
 const WelcomeSection = () => {
@@ -40,7 +41,7 @@ const WelcomeSection = () => {
       <div className="welcome-container">
         <div className="welcome-text-content">
           <h2>{content.welcomeTitle}</h2>
-          <div dangerouslySetInnerHTML={{ __html: content.welcomeText }} />
+          <div dangerouslySetInnerHTML={sanitizeAndSetInnerHTML(content.welcomeText)} />
           <button className="welcome-info-button">Get more info</button>
         </div>
         <div className="welcome-image-wrapper" style={{ textAlign: image.align }}>
