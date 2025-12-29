@@ -1,25 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 
-const InstructorEditor = ({ instructors, onChange }) => {
+const InstructorEditor = ({ name, instructors, onChange }) => {
   const [localInstructors, setLocalInstructors] = useState(instructors || []);
 
-  useEffect(() => {
-    onChange({ target: { name: 'instructors', value: JSON.stringify(localInstructors) } });
-  }, [localInstructors, onChange]);
-
-  const handleInstructorChange = (index, field, value) => {
+  const handleInstructorChange = useCallback((index, field, value) => {
     const updatedInstructors = [...localInstructors];
-    updatedInstructors[index][field] = value;
+    updatedInstructors[index] = { ...updatedInstructors[index], [field]: value };
     setLocalInstructors(updatedInstructors);
-  };
+    onChange(name, updatedInstructors);
+  }, [localInstructors, name, onChange]);
 
-  const addInstructor = () => {
-    setLocalInstructors([...localInstructors, { id: Date.now(), name: '', bio: '', image: '' }]);
-  };
+  const addInstructor = useCallback(() => {
+    const newInstructors = [...localInstructors, { id: Date.now(), name: '', bio: '', image: '' }];
+    setLocalInstructors(newInstructors);
+    onChange(name, newInstructors);
+  }, [localInstructors, name, onChange]);
 
-  const removeInstructor = (index) => {
-    setLocalInstructors(localInstructors.filter((_, i) => i !== index));
-  };
+  const removeInstructor = useCallback((index) => {
+    const updatedInstructors = localInstructors.filter((_, i) => i !== index);
+    setLocalInstructors(updatedInstructors);
+    onChange(name, updatedInstructors);
+  }, [localInstructors, name, onChange]);
 
   return (
     <div>

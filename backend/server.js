@@ -196,7 +196,14 @@ app.post('/api/content/:page_name', upload.any(), async (req, res) => {
     // Process text fields
     for (const key in textFields) {
       try {
-        content[key] = JSON.parse(textFields[key]);
+        const parsedData = JSON.parse(textFields[key]);
+        content[key] = parsedData;
+
+        // If the field is an array of file objects, handle deletions.
+        if (Array.isArray(content[key]) && content[key].every(item => typeof item === 'object' && item.url)) {
+          const newUrls = new Set(parsedData.map(item => item.url));
+          content[key] = content[key].filter(item => newUrls.has(item.url));
+        }
       } catch (e) {
         content[key] = textFields[key];
       }
@@ -238,6 +245,26 @@ app.post('/api/content/:page_name', upload.any(), async (req, res) => {
   }
 });
 
+// --- Vercel Blob Upload API ---
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded.' });
+  }
+
+  try {
+    const fileStream = fs.createReadStream(req.file.path);
+    const { url } = await put(req.file.originalname, fileStream, {
+      access: 'public',
+    });
+    fs.unlinkSync(req.file.path); // Clean up the temporary file
+    res.status(200).json({ url });
+  } catch (error) {
+    console.error('Error uploading to Vercel Blob:', error);
+    res.status(500).json({ error: 'Failed to upload file.' });
+  }
+});
+
+
 const initializeDb = async () => {
   const client = await pool.connect();
   try {
@@ -248,7 +275,7 @@ const initializeDb = async () => {
         content JSONB
       );
     `);
-    console.log('Table "page_content" is ready.');
+    console.log('"page_content" table is ready.');
   } catch (error) {
     console.error('Error initializing database:', error);
   } finally {

@@ -3,6 +3,7 @@ import { NavLink, useParams } from 'react-router-dom';
 import EditableSection from '../components/EditableSection';
 import InstructorEditor from '../components/InstructorEditor';
 import BlogEditor from '../components/BlogEditor';
+import ProgramsEditor from '../components/ProgramsEditor';
 import './AdminPage.css';
 
 const AdminPage = () => {
@@ -48,9 +49,7 @@ const AdminPage = () => {
         {
             title: 'Programs Section',
             fields: [
-                { name: 'programsTitle', label: 'Programs Title', type: 'text' },
-                { name: 'programsText', label: 'Programs Text', type: 'textarea' },
-                { name: 'programImages', label: 'Program Images', type: 'file', multiple: true },
+              { name: 'programs', label: 'Programs', type: 'custom', component: ProgramsEditor }
             ]
         },
         {

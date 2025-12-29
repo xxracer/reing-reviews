@@ -1,25 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 
-const BlogEditor = ({ posts, onChange }) => {
+const BlogEditor = ({ name, posts, onChange }) => {
   const [localPosts, setLocalPosts] = useState(posts || []);
 
-  useEffect(() => {
-    onChange({ target: { name: 'posts', value: JSON.stringify(localPosts) } });
-  }, [localPosts, onChange]);
-
-  const handlePostChange = (index, field, value) => {
+  const handlePostChange = useCallback((index, field, value) => {
     const updatedPosts = [...localPosts];
-    updatedPosts[index][field] = value;
+    updatedPosts[index] = { ...updatedPosts[index], [field]: value };
     setLocalPosts(updatedPosts);
-  };
+    onChange(name, updatedPosts);
+  }, [localPosts, name, onChange]);
 
-  const addPost = () => {
-    setLocalPosts([...localPosts, { id: Date.now(), title: '', content: '', image: '' }]);
-  };
+  const addPost = useCallback(() => {
+    const newPosts = [...localPosts, { id: Date.now(), title: '', content: '', image: '' }];
+    setLocalPosts(newPosts);
+    onChange(name, newPosts);
+  }, [localPosts, name, onChange]);
 
-  const removePost = (index) => {
-    setLocalPosts(localPosts.filter((_, i) => i !== index));
-  };
+  const removePost = useCallback((index) => {
+    const updatedPosts = localPosts.filter((_, i) => i !== index);
+    setLocalPosts(updatedPosts);
+    onChange(name, updatedPosts);
+  }, [localPosts, name, onChange]);
 
   return (
     <div>

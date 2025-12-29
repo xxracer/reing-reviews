@@ -143,18 +143,20 @@ const EditableSection = ({ pageName, sectionTitle, fields }) => {
         );
       case 'custom':
         const CustomComponent = field.component;
-        const componentProps = {};
-        if (field.name === 'instructors' || field.name === 'posts') {
+        const componentProps = {
+          onChange: (fieldName, value) => setContent(prev => ({ ...prev, [fieldName]: value })),
+        };
+        if (field.name === 'instructors' || field.name === 'posts' || field.name === 'programs') {
             try {
-                componentProps[field.name] = JSON.parse(content[field.name] || '[]');
+                componentProps[field.name] = typeof content[field.name] === 'string' ? JSON.parse(content[field.name] || '[]') : content[field.name] || [];
             } catch {
                 componentProps[field.name] = [];
             }
         }
         return (
           <CustomComponent
+            name={field.name}
             {...componentProps}
-            onChange={handleTextChange}
           />
         );
       default:
