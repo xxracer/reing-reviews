@@ -191,25 +191,21 @@ app.post('/api/content/:page_name', upload.any(), async (req, res) => {
   try {
     const client = await pool.connect();
     const existingContentResult = await client.query('SELECT content FROM page_content WHERE page_name = $1', [page_name]);
-    let content = existingContentResult.rows.length > 0 ? existingContentResult.rows[0].content || {} : {};
+    const existingContent = existingContentResult.rows.length > 0 ? existingContentResult.rows[0].content || {} : {};
 
-    // Process text fields
+    let updatedContent = { ...existingContent };
+
+    // Process text fields to update text values and establish the baseline for image arrays (handling deletions/reordering)
     for (const key in textFields) {
       try {
         const parsedData = JSON.parse(textFields[key]);
-        content[key] = parsedData;
-
-        // If the field is an array of file objects, handle deletions.
-        if (Array.isArray(content[key]) && content[key].every(item => typeof item === 'object' && item.url)) {
-          const newUrls = new Set(parsedData.map(item => item.url));
-          content[key] = content[key].filter(item => newUrls.has(item.url));
-        }
+        updatedContent[key] = parsedData;
       } catch (e) {
-        content[key] = textFields[key];
+        updatedContent[key] = textFields[key];
       }
     }
 
-    // Process uploaded files
+    // Process uploaded files and add them to the correct fields
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const fileStream = fs.createReadStream(file.path);
@@ -218,14 +214,17 @@ app.post('/api/content/:page_name', upload.any(), async (req, res) => {
         });
         fs.unlinkSync(file.path); // Clean up the temporary file
 
-        if (!content[file.fieldname]) {
-          content[file.fieldname] = [];
-        }
-        content[file.fieldname].push({
+        const newFileData = {
           url,
           originalname: file.originalname,
           mimetype: file.mimetype,
-        });
+        };
+
+        // Initialize the array if it doesn't exist or isn't an array
+        if (!Array.isArray(updatedContent[file.fieldname])) {
+          updatedContent[file.fieldname] = [];
+        }
+        updatedContent[file.fieldname].push(newFileData);
       }
     }
 
@@ -236,7 +235,7 @@ app.post('/api/content/:page_name', upload.any(), async (req, res) => {
       DO UPDATE SET content = $2
       RETURNING *;
     `;
-    const result = await client.query(query, [page_name, content]);
+    const result = await client.query(query, [page_name, updatedContent]);
     client.release();
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -247,21 +246,21 @@ app.post('/api/content/:page_name', upload.any(), async (req, res) => {
 
 // --- Vercel Blob Upload API ---
 app.post('/api/upload', upload.single('file'), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded.' });
-  }
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded.' });
+    }
 
-  try {
-    const fileStream = fs.createReadStream(req.file.path);
-    const { url } = await put(req.file.originalname, fileStream, {
-      access: 'public',
-    });
-    fs.unlinkSync(req.file.path); // Clean up the temporary file
-    res.status(200).json({ url });
-  } catch (error) {
-    console.error('Error uploading to Vercel Blob:', error);
-    res.status(500).json({ error: 'Failed to upload file.' });
-  }
+    try {
+        const fileBuffer = fs.readFileSync(req.file.path);
+        const { url } = await put(req.file.originalname, fileBuffer, {
+            access: 'public',
+        });
+        fs.unlinkSync(req.file.path);
+        res.status(200).json({ url });
+    } catch (error) {
+        console.error('Error uploading to Vercel Blob:', error);
+        res.status(500).json({ error: 'Failed to upload file.' });
+    }
 });
 
 

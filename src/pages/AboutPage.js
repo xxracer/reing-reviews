@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import FAQ from '../components/FAQ';
+import { sanitizeAndSetInnerHTML } from '../utils/sanitize';
 
 const AboutPage = () => {
   const [content, setContent] = useState({
@@ -60,7 +61,7 @@ const AboutPage = () => {
         {JSON.stringify(faqSchema)}
       </script>
       <h1 style={{ marginBottom: '20px' }}>{content.title}</h1>
-      <div style={{ marginBottom: '40px', fontSize: '18px', lineHeight: '1.7' }} dangerouslySetInnerHTML={{ __html: content.mainText }} />
+      <div style={{ marginBottom: '40px', fontSize: '18px', lineHeight: '1.7' }} dangerouslySetInnerHTML={sanitizeAndSetInnerHTML(content.mainText)} />
       <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '60px' }}>
         {content.images.map((image, index) => (
           <img

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
+import ImageEditor from './ImageEditor';
 
 const EditableSection = ({ pageName, sectionTitle, fields }) => {
   const [content, setContent] = useState({});
@@ -28,9 +29,17 @@ const EditableSection = ({ pageName, sectionTitle, fields }) => {
     setContent(prev => ({ ...prev, [name]: value }));
   }, []);
 
-  const handleFileChange = (e) => {
-    const { name, files: selectedFiles } = e.target;
-    setFiles(prev => ({ ...prev, [name]: selectedFiles }));
+  const handleFileChange = (fieldName, value) => {
+    if (Array.isArray(value)) {
+      // This is a full replacement of the URL list (e.g., from removing an item)
+      setContent(prev => ({ ...prev, [fieldName]: value.map(url => ({ url })) }));
+    } else {
+      // This is a new file blob to be uploaded
+      setFiles(prev => {
+        const existingFiles = prev[fieldName] || [];
+        return { ...prev, [fieldName]: [...existingFiles, value] };
+      });
+    }
   };
 
   const handleUrlInputChange = (fieldName, value) => {
@@ -120,26 +129,26 @@ const EditableSection = ({ pageName, sectionTitle, fields }) => {
           />
         );
       case 'file':
+        const currentImage = (content[field.name] && content[field.name][0]?.url) || (files[field.name] && URL.createObjectURL(files[field.name][0]));
         return (
-          <div>
-            <input
-              type="file"
-              name={field.name}
-              multiple={field.multiple}
-              onChange={handleFileChange}
-              style={{ marginBottom: '10px' }}
-            />
             <div>
-              <input
-                type="text"
-                placeholder="Or add image URL"
-                value={urlInputs[field.name] || ''}
-                onChange={(e) => handleUrlInputChange(field.name, e.target.value)}
-                style={{ width: 'calc(100% - 120px)', marginRight: '10px' }}
-              />
-              <button type="button" onClick={() => handleAddUrl(field.name)}>Add from URL</button>
+                <ImageEditor
+                    fieldName={field.name}
+                    initialImageUrl={currentImage}
+                    onChange={handleFileChange}
+                    aspect={field.aspect || 16/9}
+                />
+                <div style={{ marginTop: '10px' }}>
+                    <input
+                        type="text"
+                        placeholder="Or add image URL"
+                        value={urlInputs[field.name] || ''}
+                        onChange={(e) => handleUrlInputChange(field.name, e.target.value)}
+                        style={{ width: 'calc(100% - 120px)', marginRight: '10px' }}
+                    />
+                    <button type="button" onClick={() => handleAddUrl(field.name)}>Add from URL</button>
+                </div>
             </div>
-          </div>
         );
       case 'custom':
         const CustomComponent = field.component;
