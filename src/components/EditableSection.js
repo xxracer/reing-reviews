@@ -129,15 +129,14 @@ const EditableSection = ({ pageName, sectionTitle, fields }) => {
           />
         );
       case 'file':
-        const currentImages = content[field.name] || [];
-        const imageUrls = Array.isArray(currentImages) ? currentImages.map(img => img.url).filter(Boolean) : [];
+        const currentImage = (content[field.name] && content[field.name][0]?.url) || (files[field.name] && URL.createObjectURL(files[field.name][0]));
         return (
             <div>
                 <ImageEditor
                     fieldName={field.name}
-                    initialImageUrls={imageUrls}
+                    initialImageUrl={currentImage}
                     onChange={handleFileChange}
-                    multiple={field.multiple || false}
+                    aspect={field.aspect || 16/9}
                 />
                 <div style={{ marginTop: '10px' }}>
                     <input

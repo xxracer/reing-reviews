@@ -1,0 +1,82 @@
+/* ImageEditor.css */
+
+.image-editor-container {
+  border: 1px dashed #ccc;
+  padding: 1rem;
+  font-family: sans-serif;
+}
+
+.image-editor-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.preview-container {
+  border: 1px dotted #a0a0a0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  background-color: #f0f0f0;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.preview-container .ReactCrop {
+  max-width: 100%;
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.preview-container img {
+  max-width: 100%;
+  max-height: 400px;
+}
+
+.controls-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.file-input-wrapper {
+  display: inline-block;
+}
+
+.zoom-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.zoom-container label {
+  font-weight: bold;
+}
+
+.zoom-slider {
+  width: 150px;
+}
+
+.center-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.center-button:hover {
+  background-color: #e0e0e0;
+}
+
+.no-image-text {
+  color: #888;
+}
+
+.image-editor-buttons {
+    display: flex;
+    gap: 10px;
+}

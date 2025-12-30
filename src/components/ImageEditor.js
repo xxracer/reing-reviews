@@ -1,181 +1,190 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import ReactCrop from 'react-image-crop';
+import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
+import './ImageEditor.css';
 
-// A single editor instance for one image
-const SingleImageEditor = ({ image, onCropComplete, onRemove }) => {
-    const imgRef = useRef(null);
+function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
+    return centerCrop(
+        makeAspectCrop(
+            {
+                unit: '%',
+                width: 90,
+            },
+            aspect,
+            mediaWidth,
+            mediaHeight,
+        ),
+        mediaWidth,
+        mediaHeight,
+    );
+}
+
+const ImageEditor = ({ fieldName, initialImageUrl, onChange, aspect = 16 / 9 }) => {
+    const [imgSrc, setImgSrc] = useState('');
     const previewCanvasRef = useRef(null);
-    const [crop, setCrop] = useState({ unit: 'px', width: 300, aspect: 16 / 9 });
-    const [completedCrop, setCompletedCrop] = useState(null);
-    const [zoom, setZoom] = useState(1);
-
-    const onLoad = useCallback((img) => {
-        imgRef.current = img;
-    }, []);
-
-    const generatePreview = useCallback((canvas, cropData) => {
-        if (!cropData || !canvas || !imgRef.current) return;
-
-        const image = imgRef.current;
-        const scaleX = image.naturalWidth / image.width;
-        const scaleY = image.naturalHeight / image.height;
-        const ctx = canvas.getContext('2d');
-        const pixelRatio = window.devicePixelRatio;
-
-        canvas.width = cropData.width * pixelRatio;
-        canvas.height = cropData.height * pixelRatio;
-
-        ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-        ctx.imageSmoothingQuality = 'high';
-
-        ctx.drawImage(
-            image,
-            cropData.x * scaleX,
-            cropData.y * scaleY,
-            cropData.width * scaleX,
-            cropData.height * scaleY,
-            0, 0, cropData.width, cropData.height
-        );
-
-        canvas.toBlob(
-            (blob) => {
-                if (blob) {
-                    onCropComplete(image.id, blob);
-                }
-            }, 'image/png', 1
-        );
-    }, [onCropComplete]);
+    const imgRef = useRef(null);
+    const [crop, setCrop] = useState();
+    const [completedCrop, setCompletedCrop] = useState();
+    const [scale, setScale] = useState(1);
+    const [rotate, setRotate] = useState(0);
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
-        if (completedCrop?.width && completedCrop?.height && imgRef.current && previewCanvasRef.current) {
-            generatePreview(previewCanvasRef.current, completedCrop);
+        setImgSrc(initialImageUrl || '');
+        if (initialImageUrl) {
+            setIsEditing(false); // If there's an initial image, show it without forcing edit mode
+        } else {
+            setIsEditing(true); // If there's no image, start in edit mode to prompt upload
         }
-    }, [completedCrop, generatePreview]);
+    }, [initialImageUrl]);
 
-    const imageStyle = { transform: `scale(${zoom})` };
+    function onSelectFile(e) {
+        if (e.target.files && e.target.files.length > 0) {
+            setCrop(undefined);
+            const reader = new FileReader();
+            reader.addEventListener('load', () => {
+                setImgSrc(reader.result?.toString() || '');
+                setIsEditing(true);
+            });
+            reader.readAsDataURL(e.target.files[0]);
+            onChange(fieldName, e.target.files[0]); // Pass the file object up immediately
+        }
+    }
+
+    function onImageLoad(e) {
+        const { width, height } = e.currentTarget;
+        const newCrop = centerAspectCrop(width, height, aspect);
+        setCrop(newCrop);
+        setCompletedCrop(newCrop); // Set a default completed crop
+    }
+
+    const handleCenterImage = () => {
+        if (imgRef.current) {
+            const { width, height } = imgRef.current;
+            const newCrop = centerAspectCrop(width, height, aspect);
+            setCrop(newCrop);
+            setCompletedCrop(newCrop);
+        }
+    };
+
+    // This effect is for generating the preview
+    useEffect(() => {
+        async function createPreview() {
+            if (!completedCrop || !previewCanvasRef.current || !imgRef.current) {
+                return;
+            }
+
+            const image = imgRef.current;
+            const canvas = previewCanvasRef.current;
+            const scaleX = image.naturalWidth / image.width;
+            const scaleY = image.naturalHeight / image.height;
+
+            canvas.width = Math.floor(completedCrop.width * scaleX);
+            canvas.height = Math.floor(completedCrop.height * scaleY);
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                throw new Error('No 2d context');
+            }
+
+            ctx.drawImage(
+                image,
+                completedCrop.x * scaleX,
+                completedCrop.y * scaleY,
+                completedCrop.width * scaleX,
+                completedCrop.height * scaleY,
+                0,
+                0,
+                canvas.width,
+                canvas.height,
+            );
+        }
+
+        createPreview();
+    }, [completedCrop]);
+
+
+    const handleDoneEditing = () => {
+        setIsEditing(false);
+        // Here you might want to generate a final blob and pass it up
+        if (previewCanvasRef.current) {
+            previewCanvasRef.current.toBlob(blob => {
+                if (blob) {
+                    onChange(fieldName, blob);
+                }
+            }, 'image/png');
+        }
+    };
 
     return (
-        <div style={{ border: '1px solid #ddd', padding: '10px', marginBottom: '10px' }}>
-            <ReactCrop
-                crop={crop}
-                onChange={(c) => setCrop(c)}
-                onComplete={(c) => setCompletedCrop(c)}
-            >
-                <img ref={imgRef} src={image.previewUrl} onLoad={onLoad} style={imageStyle} alt="Crop Preview" />
-            </ReactCrop>
-            <div style={{ margin: '10px 0' }}>
-                <label>Zoom: </label>
-                <input
-                    type="range"
-                    value={zoom}
-                    min={1}
-                    max={3}
-                    step={0.1}
-                    onChange={(e) => setZoom(parseFloat(e.target.value))}
-                />
-            </div>
-            <button onClick={() => onRemove(image.id)}>Remove Image</button>
-            <h5>Cropped Preview</h5>
+        <div className="image-editor-container">
+            <h4 className="image-editor-title">{fieldName.replace(/_/g, ' ')}</h4>
+
+            {!isEditing && imgSrc && (
+                 <div className="preview-container">
+                    <img src={imgSrc} alt="Current" style={{ maxWidth: '100%', maxHeight: '300px' }}/>
+                 </div>
+            )}
+
+            {isEditing ? (
+                <>
+                    <div className="preview-container">
+                        {imgSrc ? (
+                            <ReactCrop
+                                crop={crop}
+                                onChange={(_, percentCrop) => setCrop(percentCrop)}
+                                onComplete={(c) => setCompletedCrop(c)}
+                                aspect={aspect}
+                            >
+                                <img
+                                    ref={imgRef}
+                                    src={imgSrc}
+                                    alt="Crop me"
+                                    style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
+                                    onLoad={onImageLoad}
+                                />
+                            </ReactCrop>
+                        ) : (
+                            <p className="no-image-text">No Image Selected</p>
+                        )}
+                    </div>
+                    <div className="controls-container">
+                        <input type="file" accept="image/*" onChange={onSelectFile} />
+                        <div className="zoom-container">
+                            <label htmlFor="scale-input">Zoom:</label>
+                            <input
+                                id="scale-input"
+                                type="range"
+                                step="0.1"
+                                min="0.5"
+                                max="2"
+                                value={scale}
+                                onChange={(e) => setScale(Number(e.target.value))}
+                                className="zoom-slider"
+                            />
+                        </div>
+                        <button type="button" onClick={handleCenterImage} className="center-button">
+                            Center
+                        </button>
+                    </div>
+                </>
+            ) : (
+                <div className="image-editor-buttons">
+                    <button type="button" onClick={() => setIsEditing(true)}>Change Image</button>
+                </div>
+            )}
+
+            {/* Keep the canvas for preview generation, but it can be hidden */}
             <canvas
                 ref={previewCanvasRef}
                 style={{
+                    display: 'none',
                     border: '1px solid black',
                     objectFit: 'contain',
-                    maxWidth: '100%',
-                    maxHeight: 300
+                    width: completedCrop?.width,
+                    height: completedCrop?.height,
                 }}
             />
-        </div>
-    );
-};
-
-
-const ImageEditor = ({ fieldName, initialImageUrls = [], onChange, multiple = false }) => {
-    const [images, setImages] = useState([]);
-
-    useEffect(() => {
-        // When initialImageUrls change, update the state
-        const initialImages = initialImageUrls.map((url, index) => ({
-            id: `initial-${index}-${Date.now()}`,
-            previewUrl: url,
-            isInitial: true // Flag to distinguish from new uploads
-        }));
-        setImages(initialImages);
-    }, [initialImageUrls]);
-
-    const onSelectFile = (e) => {
-        if (e.target.files && e.target.files.length > 0) {
-            const newImages = Array.from(e.target.files).map(file => ({
-                id: `${file.name}-${Date.now()}`,
-                file,
-                previewUrl: URL.createObjectURL(file),
-            }));
-
-            if (multiple) {
-                setImages(prev => [...prev, ...newImages]);
-            } else {
-                setImages(newImages);
-            }
-        }
-    };
-
-    const handleCropComplete = (imageId, blob) => {
-        const file = images.find(img => img.id === imageId)?.file;
-        if (file) {
-            const croppedFile = new File([blob], file.name, {
-                type: 'image/png',
-                lastModified: Date.now(),
-            });
-            onChange(fieldName, croppedFile, file.name); // Pass original filename for mapping
-        }
-    };
-
-    // This function now just removes from the UI state.
-    // The parent component is responsible for updating the final list of URLs.
-    const handleRemoveImage = (idToRemove) => {
-        const remainingImages = images.filter(img => img.id !== idToRemove);
-        setImages(remainingImages);
-
-        // Notify parent of the change
-        const remainingUrls = remainingImages
-            .filter(img => img.isInitial)
-            .map(img => img.previewUrl);
-
-        onChange(fieldName, remainingUrls);
-    };
-
-
-    return (
-        <div className="ImageEditor" style={{ border: '1px dashed #ccc', padding: '10px' }}>
-            <div style={{ marginBottom: '10px' }}>
-                <input type="file" accept="image/*" onChange={onSelectFile} multiple={multiple} />
-            </div>
-
-            {images.length > 0 ? (
-                images.map((image) => (
-                    <div key={image.id}>
-                        {/* If it's a newly uploaded file, show the editor */}
-                        {image.file ? (
-                            <SingleImageEditor
-                                image={image}
-                                onCropComplete={handleCropComplete}
-                                onRemove={handleRemoveImage}
-                            />
-                        ) : (
-                            // If it's an initial image URL, just display it with a remove button
-                            <div style={{ border: '1px solid #ddd', padding: '10px', marginBottom: '10px' }}>
-                                <img src={image.previewUrl} alt="Existing" style={{ maxWidth: '100%', maxHeight: '200px' }}/>
-                                <button onClick={() => handleRemoveImage(image.id)} style={{marginTop: '10px'}}>
-                                    Remove Image
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                ))
-            ) : (
-                <p>No Image Selected</p>
-            )}
         </div>
     );
 };
