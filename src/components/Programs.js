@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import './Programs.css';
 
-// This will be used as fallback data if the CMS fetch fails
-const fallbackProgramsData = [
+const programsData = [
   {
     title: 'Kids Program',
     path: '/kids-program',
@@ -50,49 +48,14 @@ const fallbackProgramsData = [
 ];
 
 const Programs = () => {
-  const [programs, setPrograms] = useState([]);
-
-  useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const response = await axios.get('/api/content/home');
-        const content = response.data;
-
-        let programsData = [];
-        if (typeof content.programs === 'string') {
-          programsData = JSON.parse(content.programs);
-        } else if (Array.isArray(content.programs)) {
-          programsData = content.programs;
-        }
-
-        if (programsData && programsData.length > 0) {
-          setPrograms(programsData);
-        } else {
-          setPrograms(fallbackProgramsData);
-        }
-      } catch (error) {
-        console.error('Error fetching homepage content, using fallback data:', error);
-        setPrograms(fallbackProgramsData);
-      }
-    };
-
-    fetchContent();
-  }, []);
-
-  // Ensure paths are correctly generated for linking
-  const generateLinkPath = (title) => {
-    if (!title) return '/';
-    return `/${title.toLowerCase().replace(/\s+/g, '-')}`;
-  };
-
   return (
     <section id="programs" className="programs-section">
       <h2 className="section-title">Our Programs</h2>
       <div className="programs-grid">
-        {programs.map((program, index) => (
-          <Link to={program.path || generateLinkPath(program.title)} key={index} className="program-card">
+        {programsData.map((program, index) => (
+          <Link to={program.path} key={index} className="program-card">
             <div className="program-image-wrapper">
-              <img src={program.image} alt={program.alt || program.title} />
+              <img src={program.image} alt={program.alt} />
             </div>
             <div className="program-content">
               <h3 className="program-title">{program.title}</h3>
