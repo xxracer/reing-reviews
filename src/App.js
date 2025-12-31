@@ -24,7 +24,8 @@ import ContactPage from './pages/ContactPage';
 import AboutPage from './pages/AboutPage';
 import BlogPage from './pages/BlogPage';
 import UpdateInstructors from './pages/UpdateInstructors';
-import AdminPage from './pages/AdminPage';
+import AdminLayout from './components/AdminLayout'; // Import the new layout
+import EditablePage from './pages/EditablePage'; // Import the new editable page component
 
 import GoogleReviewsButton from './components/GoogleReviewsButton';
 
@@ -37,27 +38,14 @@ const DefaultLayout = ({ children }) => (
   </div>
 );
 
-const AdminLayout = ({ children }) => (
-  <div className="App">
-    <main>{children}</main>
-  </div>
-);
-
 function App() {
   return (
     <Router>
       <Routes>
-        <Route
-          path="/admin/*"
-          element={
-            <AdminLayout>
-              <Routes>
-                <Route path="/" element={<Navigate to="/admin/home" />} />
-                <Route path=":page" element={<AdminPage />} />
-              </Routes>
-            </AdminLayout>
-          }
-        />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="edit/home" replace />} />
+          <Route path="edit/:pageName" element={<EditablePage />} />
+        </Route>
         <Route
           path="/*"
           element={

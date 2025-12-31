@@ -1,57 +1,52 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
+import './InstructorEditor.css';
 
-const InstructorEditor = ({ name, instructors, onChange }) => {
-  const [localInstructors, setLocalInstructors] = useState(instructors || []);
+const InstructorEditor = ({ fieldName, value, onChange }) => {
+    const instructors = Array.isArray(value) ? value : [];
 
-  const handleInstructorChange = useCallback((index, field, value) => {
-    const updatedInstructors = [...localInstructors];
-    updatedInstructors[index] = { ...updatedInstructors[index], [field]: value };
-    setLocalInstructors(updatedInstructors);
-    onChange(name, updatedInstructors);
-  }, [localInstructors, name, onChange]);
+    const handleInstructorChange = (index, field, newValue) => {
+        const newInstructors = [...instructors];
+        newInstructors[index] = { ...newInstructors[index], [field]: newValue };
+        onChange(fieldName, newInstructors);
+    };
 
-  const addInstructor = useCallback(() => {
-    const newInstructors = [...localInstructors, { id: Date.now(), name: '', bio: '', image: '' }];
-    setLocalInstructors(newInstructors);
-    onChange(name, newInstructors);
-  }, [localInstructors, name, onChange]);
+    const addInstructor = () => {
+        onChange(fieldName, [...instructors, { name: '', bio: '', image: '' }]);
+    };
 
-  const removeInstructor = useCallback((index) => {
-    const updatedInstructors = localInstructors.filter((_, i) => i !== index);
-    setLocalInstructors(updatedInstructors);
-    onChange(name, updatedInstructors);
-  }, [localInstructors, name, onChange]);
+    const removeInstructor = (index) => {
+        const newInstructors = instructors.filter((_, i) => i !== index);
+        onChange(fieldName, newInstructors);
+    };
 
-  return (
-    <div>
-      {localInstructors.map((instructor, index) => (
-        <div key={instructor.id} style={{ border: '1px solid #eee', padding: '10px', marginBottom: '10px' }}>
-          <input
-            type="text"
-            placeholder="Name"
-            value={instructor.name}
-            onChange={(e) => handleInstructorChange(index, 'name', e.target.value)}
-            style={{ width: '100%', marginBottom: '5px' }}
-          />
-          <textarea
-            placeholder="Bio"
-            value={instructor.bio}
-            onChange={(e) => handleInstructorChange(index, 'bio', e.target.value)}
-            style={{ width: '100%', minHeight: '80px', marginBottom: '5px' }}
-          />
-          <input
-            type="text"
-            placeholder="Image URL"
-            value={instructor.image}
-            onChange={(e) => handleInstructorChange(index, 'image', e.target.value)}
-            style={{ width: '100%', marginBottom: '5px' }}
-          />
-          <button type="button" onClick={() => removeInstructor(index)}>Remove Instructor</button>
+    return (
+        <div className="instructor-editor">
+            {instructors.map((instructor, index) => (
+                <div key={index} className="instructor-item">
+                    <input
+                        type="text"
+                        placeholder="Name"
+                        value={instructor.name || ''}
+                        onChange={(e) => handleInstructorChange(index, 'name', e.target.value)}
+                    />
+                    <textarea
+                        placeholder="Bio"
+                        value={instructor.bio || ''}
+                        onChange={(e) => handleInstructorChange(index, 'bio', e.target.value)}
+                        rows="5"
+                    />
+                    <input
+                        type="text"
+                        placeholder="Image URL"
+                        value={instructor.image || ''}
+                        onChange={(e) => handleInstructorChange(index, 'image', e.target.value)}
+                    />
+                    <button type="button" onClick={() => removeInstructor(index)}>Remove</button>
+                </div>
+            ))}
+            <button type="button" onClick={addInstructor}>Add Instructor</button>
         </div>
-      ))}
-      <button type="button" onClick={addInstructor}>Add Instructor</button>
-    </div>
-  );
+    );
 };
 
 export default InstructorEditor;
