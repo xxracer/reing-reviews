@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import './ImageEditor.css';
@@ -102,18 +102,6 @@ const ImageEditor = ({ fieldName, initialImageUrl, onChange, aspect = 16 / 9 }) 
         createPreview();
     }, [completedCrop]);
 
-
-    const handleDoneEditing = () => {
-        setIsEditing(false);
-        // Here you might want to generate a final blob and pass it up
-        if (previewCanvasRef.current) {
-            previewCanvasRef.current.toBlob(blob => {
-                if (blob) {
-                    onChange(fieldName, blob);
-                }
-            }, 'image/png');
-        }
-    };
 
     return (
         <div className="image-editor-container">
