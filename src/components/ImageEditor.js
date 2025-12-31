@@ -126,7 +126,7 @@ const ImageEditor = ({ fieldName, initialImageUrl, onChange, aspect = 16 / 9 }) 
                                     ref={imgRef}
                                     src={imgSrc}
                                     alt="Crop me"
-                                    style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
+                                    style={{ transform: `scale(${scale})` }}
                                     onLoad={onImageLoad}
                                 />
                             </ReactCrop>
