@@ -59,7 +59,7 @@ const HomePage = () => {
       <HeroSection videoOpacity={videoOpacity} content={content} />
       <div className="welcome-section-wrapper" ref={welcomeRef}>
         <WelcomeSection content={content} />
-        <Programs programs={content.programs} />
+        <Programs />
         <Facility content={content} />
         <Testimonials />
         <CallToAction content={content} />

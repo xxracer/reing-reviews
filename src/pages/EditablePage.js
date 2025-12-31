@@ -17,7 +17,6 @@ const pageStructure = {
         welcomeTitle: { type: 'text' },
         welcomeText: { type: 'richtext' },
         welcomeImage: { type: 'image', aspect: 4 / 3 },
-        programs: { type: 'custom', editor: 'ProgramsEditor' },
         facilityTitle: { type: 'text' },
         facilityText: { type: 'textarea' },
         facilityImages: { type: 'image' }, // Should handle multiple images
@@ -37,11 +36,14 @@ const pageStructure = {
         instructors_list: { type: 'custom', editor: 'InstructorEditor' },
     },
     'kids-program': {
-        header_image: { type: 'image', aspect: 16/9 },
         title: { type: 'text' },
-        description: { type: 'richtext' },
-        program_details: { type: 'richtext' },
-        benefits_list: { type: 'textarea' }, // comma separated
+        mainText: { type: 'richtext' },
+        mainImage: { type: 'image', aspect: 16/9 },
+        benefits_title: { type: 'text' },
+        benefits_text: { type: 'richtext' },
+        benefits_image: { type: 'image', aspect: 1/1 },
+        galleryImage: { type: 'image', aspect: 16/9 },
+        faqs: { type: 'custom', editor: 'FAQEditor' },
     },
     'homeschool-program': {
         header_image: { type: 'image', aspect: 16/9 },
@@ -50,10 +52,14 @@ const pageStructure = {
         schedule_info: { type: 'richtext' },
     },
     'adult-program': {
-        header_image: { type: 'image', aspect: 16/9 },
         title: { type: 'text' },
-        description: { type: 'richtext' },
-        program_includes: { type: 'richtext' },
+        mainText: { type: 'richtext' },
+        mainImage: { type: 'image', aspect: 16/9 },
+        benefits_title: { type: 'text' },
+        benefits_text: { type: 'richtext' },
+        benefits_image: { type: 'image', aspect: 1/1 },
+        galleryImage: { type: 'image', aspect: 16/9 },
+        faqs: { type: 'custom', editor: 'FAQEditor' },
     },
     'fundamentals-program': {
         header_image: { type: 'image', aspect: 16/9 },
