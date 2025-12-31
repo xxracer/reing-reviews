@@ -2,28 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './HeroSection.css';
 
-const HeroSection = ({ videoOpacity }) => {
-  const [content, setContent] = useState({
-    heroTitle: 'Katys Premier Jiu Jitsu Academy',
-    heroSubtitle: 'Kids Jiu-Jitsu • Adult Gi & No-Gi • Competition & Homeschool Training',
-    heroVideo: [{ url: '/videos/reign.mp4' }],
-  });
+const HeroSection = ({ videoOpacity, content = {} }) => {
+  const {
+    heroTitle = 'Katys Premier Jiu Jitsu Academy',
+    heroSubtitle = 'Kids Jiu-Jitsu • Adult Gi & No-Gi • Competition & Homeschool Training',
+    heroVideo
+  } = content;
 
-  useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const response = await axios.get('/api/content/home');
-        if (response.data && Object.keys(response.data).length > 0) {
-          setContent(prevContent => ({ ...prevContent, ...response.data }));
-        }
-      } catch (error) {
-        console.error('Error fetching hero content:', error);
-      }
-    };
-    fetchContent();
-  }, []);
-
-  const videoUrl = content.heroVideo && content.heroVideo[0] ? content.heroVideo[0].url : '/videos/reign.mp4';
+  const videoUrl = heroVideo && heroVideo.length > 0 ? heroVideo[0].url : '/videos/reign.mp4';
 
   return (
     <section className="hero-section">
@@ -34,8 +20,8 @@ const HeroSection = ({ videoOpacity }) => {
         </video>
       </div>
       <div className="hero-content">
-        <h1 className="hero-main-title">{content.heroTitle}</h1>
-        <p className="hero-sub-text">{content.heroSubtitle}</p>
+        <h1 className="hero-main-title">{heroTitle}</h1>
+        <p className="hero-sub-text">{heroSubtitle}</p>
         <a href="#contact" className="hero-cta-button">Book Your Trial Class</a>
       </div>
     </section>
